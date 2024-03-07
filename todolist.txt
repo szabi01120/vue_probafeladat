@@ -1,6 +1,6 @@
 to do:
--express backend
--vue frontend
+-express backend DONE
+-vue frontend DONE
 -mysql vagy mariadb ACCOUNTS tábla -struktúra képen-
 
 -jelszó az sha256(username + valospassword)
