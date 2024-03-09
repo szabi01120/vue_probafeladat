@@ -41,4 +41,4 @@
   </script>
   
   <style src="./register.css"></style>
-  
+  ./Register.vue

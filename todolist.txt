@@ -10,7 +10,7 @@ to do:
 -ezt tárolja el cookieban, ezzel azonosít ha be vagy lépve --> node objectben runtime tárolás --> nem kell sql-be menteni DONE
 -ip address check, ha változik az ip cím, dobjon ki
 -2fa check, emailre dob egy 6 karakteres számkódot
--expressnél middleware-t írni, userLoggedIn néven, ellenőrzi, hogy be van e lépve --> ha igen akkor eltárolja az accountid-t
+-expressnél middleware-t írni, userLoggedIn néven, ellenőrzi, hogy be van e lépve --> ha igen akkor eltárolja az accountid-t DONE
 -cookieból sessionid-t X-Session-Id http headerrel küldd fel
 -frontenden axiossal get/post fetchek
 -30 perc egy session --> minden middleware meghívásnál újrakezdi és res.append("X-Session-Timeout", time); válasz headerrel leküldi másodpercben a session idejét --> frontenden tárolás, és számoljunk vissza belőle mint v4 ucp-n.
@@ -24,3 +24,21 @@ userSessions[str] = {
         sessionId: str,
         user2FA: user2FA,
     };
+
+e6b93454ad816b54f044836f582d6da436c0868115ec55f898f148cb72da3b87
+793c7bc34174eb688536340431a3516e22b23867b8f291069126453c25e0d2a5
+
+
+
+
+
+
+
+
+
+
+
+
+import login from '@/components/Login'
+import home from '@/components/Home'
+92:65:4A:92:E2:71	

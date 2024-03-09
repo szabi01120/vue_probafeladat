@@ -4,12 +4,14 @@ const mysql = require('mysql2');
 const uuid = require('uuid');
 const CryptoJS = require('crypto-js');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const accountsRouter = require('./routes/accounts');
 
 const expressApp = express();
 const expressPort = 4000;
 
 expressApp.use(cors({ origin: 'http://localhost:8080', credentials: true }));
+expressApp.use(cookieParser());
 
 expressApp.use('/accounts', accountsRouter);
 expressApp.use(bodyParser.json());
@@ -54,16 +56,24 @@ expressApp.post('/login', (req, res) => {
     if (results.length === 0) {
       return res.status(401).send('Hibás felhasználónév vagy jelszó.');
     }
-    
-    const user = results[0];
-    
+
     //session id generate
     const sessionId = uuid.v4();
     sessions[sessionId] = { username };
+    console.log('sessions: ' + sessionId);
     res.set('Set-Cookie', `sessionId=${sessionId}`);
 
     res.status(200).send({ sessionId });
   });
+});
+
+//checkLogin endpoint
+expressApp.get('/checkLogin', (req, res) => {
+  const sessionId = req.cookies.sessionId;
+  if (sessions[sessionId]) {
+    res.status(200).send({username: sessions[sessionId].username });
+  }
+  res.status(401).send('Nem vagy bejelentkezve.');
 });
 
 expressApp.get('/', (req, res) => {

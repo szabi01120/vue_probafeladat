@@ -15,27 +15,53 @@
 import axios from "axios";
 
 export default {
-  data() {
+  data() { //data model loginform
     return {
       loginForm: {
         username: '',
         password: ''
       },
-      isLoggedIn: false // logged in status
+      isLoggedIn: false,
     };
   },
+  created() {
+    this.checkLoginStatus();
+  },
   methods: {
-    async login() {
-      await axios.post('http://localhost:4000/login', this.loginForm)
-        .then(response => {
-          console.log(response.data);
+    async login() { //axios post fetch
+      try {
+        const response = await axios.post('http://localhost:4000/login', this.loginForm);
+        if (response.status === 200) {
+          console.log('Bejelentkezés sikeres!');
+          console.log('Kapott válasz:', response.data);
+          localStorage.setItem('isLoggedIn', true);
+          document.cookie = `sessionId=${response.data.sessionId}`;
           this.isLoggedIn = true;
-        })
-        .catch(error => {
-          console.error('Hiba történt a bejelentkezés során:', error);
-        });
-    }
-  }
+          this.$router.push('/home').catch((e) => {console.log(e)});
+        }
+      } catch (error) {
+        console.error('Hiba történt a bejelentkezés során:', error.response.data);
+      }
+    },
+    async checkLoginStatus() {
+      const sessionId = localStorage.getItem('sessionId');
+      if (sessionId) {
+        try {
+          const response = await axios.get('http://localhost:4000/checkLogin', {
+            withCredentials: true
+          });
+          if (response.status === 200) {
+            console.log('Bejelentkezve mint:', response.data.username);
+            this.isLoggedIn = true;
+          }
+        } catch (error) {
+          console.error(error.response.data);
+        }
+      }
+    },
+
+  },
+  
 };
 </script>
 
