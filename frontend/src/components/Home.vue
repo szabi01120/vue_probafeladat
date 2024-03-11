@@ -1,19 +1,22 @@
 <template>
     <div class="home">
-        <h1>Welcome to Home Page</h1>
+        <h1>Kezdőoldal</h1>
+        <button @click="logout">Kijelentkezés</button>
     </div>
 </template>
 
 <script>
-import login from '@/components/Login';
+/* eslint-disable */
+import login from '@/components/Login'
 
 export default {
     name: 'Home',
-    data() {
-        console.log(localStorage);
-        return {
-            message: 'Welcome to Home Page',
-            
+    methods: {
+        logout() {
+            //delete sessionId 
+            document.cookie = 'sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            //redirect
+            return this.$router.push('/');
         }
     },
     created() {

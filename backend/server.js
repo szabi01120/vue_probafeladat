@@ -6,6 +6,7 @@ const CryptoJS = require('crypto-js');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const accountsRouter = require('./routes/accounts');
+const dbConnection = require('./services/dbConnect');
 
 const expressApp = express();
 const expressPort = 4000;
@@ -13,25 +14,33 @@ const expressPort = 4000;
 expressApp.use(cors({ origin: 'http://localhost:8080', credentials: true }));
 expressApp.use(cookieParser());
 
+//routes
 expressApp.use('/accounts', accountsRouter);
 expressApp.use(bodyParser.json());
 
-//parameterek mysql
-const dbConnection = mysql.createConnection({
-  host: '127.0.0.1',
-  port: 3030,
-  user: 'root',
-  password: 'root',
-  database: 'mydatabase'
-});
+let currentIP = null;
+console.log('currentIP: ' + currentIP);
 
-//connection
-dbConnection.connect((err) => {
-  if (err) {
-    console.error('Hiba az adatbázis való csatlakozáskor: ' + err.stack);
-    return;
+//ip address check
+expressApp.use((req, res, next) => {
+  const clientIP = req.ip;
+  console.log('clientIP: ' + clientIP);
+  if (!currentIP) {
+    currentIP = clientIP;
+    next();
+  } else {
+    if (currentIP !== clientIP) {
+      //amint megvaltozik az ip toroljuk a sessiont, es a cookie-t
+      const sessionId = req.cookies.sessionId;
+      if (sessions[sessionId]) {
+        delete sessions[sessionId];
+      }
+      res.clearCookie('sessionId');
+      res.status(401).send('Az IP cím megváltozott, ki lettél jelentkeztetve.');
+    } else {
+      next();
+    }
   }
-  console.log('Sikeres csatlakozás az adatbázishoz.');
 });
 
 //session adatbázis
@@ -61,7 +70,7 @@ expressApp.post('/login', (req, res) => {
     const sessionId = uuid.v4();
     sessions[sessionId] = { username };
     console.log('sessions: ' + sessionId);
-    res.set('Set-Cookie', `sessionId=${sessionId}`);
+    res.cookie('sessionId', sessionId);
 
     res.status(200).send({ sessionId });
   });
@@ -73,7 +82,9 @@ expressApp.get('/checkLogin', (req, res) => {
   if (sessions[sessionId]) {
     res.status(200).send({username: sessions[sessionId].username });
   }
-  res.status(401).send('Nem vagy bejelentkezve.');
+  else {
+    res.status(401).send('Nem vagy bejelentkezve.');
+  }
 });
 
 expressApp.get('/', (req, res) => {

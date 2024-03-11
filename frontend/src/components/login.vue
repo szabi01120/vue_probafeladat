@@ -7,33 +7,35 @@
       <label for="password">Jelszó:</label>
       <input type="password" id="password" v-model="loginForm.password" required>
       <button type="submit">Bejelentkezés</button>
+      <p v-if="loginError" class="error-message">{{ loginError }}</p>
     </form>
   </div>
 </template>
 
 <script>
+/* eslint-disable */
 import axios from "axios";
 
 export default {
-  data() { //data model loginform
+  data() {
     return {
       loginForm: {
         username: '',
         password: ''
       },
       isLoggedIn: false,
+      loginError: ''
     };
   },
   created() {
     this.checkLoginStatus();
   },
   methods: {
-    async login() { //axios post fetch
+    async login() {
       try {
         const response = await axios.post('http://localhost:4000/login', this.loginForm);
         if (response.status === 200) {
           console.log('Bejelentkezés sikeres!');
-          console.log('Kapott válasz:', response.data);
           localStorage.setItem('isLoggedIn', true);
           document.cookie = `sessionId=${response.data.sessionId}`;
           this.isLoggedIn = true;
@@ -41,10 +43,11 @@ export default {
         }
       } catch (error) {
         console.error('Hiba történt a bejelentkezés során:', error.response.data);
+        this.loginError = error.response.data;
       }
     },
     async checkLoginStatus() {
-      const sessionId = localStorage.getItem('sessionId');
+      const sessionId = document.cookie = "name=sessionId";
       if (sessionId) {
         try {
           const response = await axios.get('http://localhost:4000/checkLogin', {
@@ -58,10 +61,8 @@ export default {
           console.error(error.response.data);
         }
       }
-    },
-
+    }
   },
-  
 };
 </script>
 

@@ -1,9 +1,9 @@
+/* eslint-disable */
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import login from '@/components/Login';
 import home from '@/components/Home';
 import axios from 'axios';
-
 Vue.use(VueRouter)
 
 const routes = [
@@ -27,21 +27,18 @@ const router = new VueRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-  console.log('fasz');
-  console.log(to.matched.some(record => record.meta.requiresAuth));
-  console.log(localStorage.getItem('isLoggedIn'));
-  
+  // console.log(to.matched.some(record => record.meta.requiresAuth));
+  // console.log(localStorage.getItem('isLoggedIn'));  
   let isLoggedIn = false;
 
-  try {
-    const response = await axios.get('http://localhost:4000/checkLogin', { withCredentials: true });
+  try { //user logged in check
+    const response = await axios.get('http://localhost:4000/checkLogin', { withCredentials: true }); 
     isLoggedIn = response.status === 200;
-  } catch (error) {
-    console.log('error: ' + error);
+  } catch (e) { 
+    isLoggedIn = false;
   }
-  
 
-  if (to.matched.some(record => record.meta.requiresAuth) &&  !isLoggedIn) {
+  if (to.matched.some(record => record.meta.requiresAuth) && !isLoggedIn) { //ha nincs bejelentkezve, redirect to login
     next({ path: '/'});
   } else {
     if(to.path === '/' && isLoggedIn) {
