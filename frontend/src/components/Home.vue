@@ -5,6 +5,8 @@
 </template>
 
 <script>
+import login from '@/components/Login';
+
 export default {
     name: 'Home',
     data() {
@@ -15,7 +17,7 @@ export default {
         }
     },
     created() {
-        checkLoginStatus();
+        login.methods.checkLoginStatus();
     },
 }
 </script>
