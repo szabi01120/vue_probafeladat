@@ -37,7 +37,9 @@ function userLoggedIn(req, res, next) {
     const sessionTimeout = Math.floor((sessions[sessionId].lastActivity + 30 * 60 * 1000 - Date.now()) / 1000); 
     console.log(typeof sessionTimeout);
     console.log('sessionTimeout: ' + String(sessionTimeout));
-    res.append('X-Session-Timeout', String(sessionTimeout)); //session timeout header
+
+    res.cookie('sessionTimeout', String(sessionTimeout), { maxAge: 30 * 60 * 1000 }); //session timeout cookie
+    //res.append('X-Session-Timeout', String(sessionTimeout)); //session timeout header
     
     console.log('Response headers: ', res.getHeaders());
     next();
@@ -52,7 +54,7 @@ function generateCode() {
 }
 
 function sendCodeToEmail(email, code) {
-  let transporter = nodemailer.createTransport({
+  const transporter = nodemailer.createTransport({
     host: 'smtp.ethereal.email',
     port: 587,
     auth: {
@@ -61,7 +63,7 @@ function sendCodeToEmail(email, code) {
     }
   });
 
-  let mailOptions = {
+  const mailOptions = {
     from: transporter.options.auth.user,
     to: email,
     subject: '2FA kód',

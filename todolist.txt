@@ -11,7 +11,7 @@ to do:
 
 ---------------------------------------------------------------------
 -ip address check, ha változik az ip cím, dobjon ki
--2fa check, emailre dob egy 6 karakteres számkódot
+-2fa check, emailre dob egy 6 karakteres számkódot HALF DONE
 ---------------------------------------------------------------------
 
 
@@ -21,7 +21,7 @@ to do:
 
 
 ---------------------------------------------------------------------
--30 perc egy session --> minden middleware meghívásnál újrakezdi és res.append("X-Session-Timeout", time); válasz headerrel leküldi másodpercben a session idejét --> frontenden tárolás, és számoljunk vissza belőle mint v4 ucp-n.
+-30 perc egy session --> minden middleware meghívásnál újrakezdi és res.append("X-Session-Timeout", time); válasz headerrel leküldi másodpercben a session idejét --> frontenden tárolás, és számoljunk vissza belőle mint v4 ucp-n. 3/4DONE
 ---------------------------------------------------------------------
 
 -session tárolás példa:

@@ -1,7 +1,7 @@
 <template>
     <div class="home">
         <h1>Kezdőoldal</h1>
-        <p>Session Timeout: {{ sessionTimeout }}</p>
+        <p>Session Timeout: {{ formattedTime }}</p>
         <button @click="logout">Kijelentkezés</button>
     </div>
 </template>
@@ -14,7 +14,10 @@ import axios from 'axios';
 export default {
     data() {
         return {
-            sessionTimeout: ''
+            sessionTimeout: 0,
+            formattedTime: '',
+            remainingTime: 0, //visszaszámlálás
+            timer: null
         }
     },
     name: 'Home',
@@ -39,10 +42,22 @@ export default {
                     'X-Session-Id': document.cookie.split('; ').find(row => row.startsWith('sessionId=')).split('=')[1],
                 },
                 withCredentials: true
-            });
-            console.log(response.headers['X-Session-Timeout']);
-            console.log(response.headers);
-            this.sessionTimeout = response.headers['x-session-timeout'];
+            });            
+            this.sessionTimeout = parseInt(document.cookie.split('; ').find(row => row.startsWith('sessionTimeout=')).split('=')[1]);
+            this.remainingTime = this.sessionTimeout; //idozito kezdeti ertek
+            this.timer = setInterval(this.countdown, 1000); //countdown inditasa
+        },
+        countdown() {
+            if(this.remainingTime > 0) {
+                this.remainingTime--;
+                const perc = Math.floor(this.remainingTime / 60);
+                const masodperc = this.remainingTime % 60;
+                this.formattedTime = `${perc}:${masodperc < 10 ? '0' : ''}${masodperc}`;
+            } else {
+                clearInterval(this.timer); //idozito leallitasa
+                console.log('Session Timeout!');
+                this.logout();
+            }
         }
     },
     created() {
