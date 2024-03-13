@@ -23,22 +23,17 @@ export default {
         username: '',
         password: ''
       },
-      isLoggedIn: false,
       loginError: ''
     };
   },
-  created() {
-    this.checkLoginStatus();
-  },
+  
   methods: {
     async login() {
       try {
         const response = await axios.post('http://localhost:4000/login', this.loginForm);
         if (response.status === 200) {
           console.log('Bejelentkezés sikeres!');
-          localStorage.setItem('isLoggedIn', true);
           document.cookie = `sessionId=${response.data.sessionId}`;
-          this.isLoggedIn = true;
           this.$router.push('/home').catch((e) => {console.log(e)});
         }
       } catch (error) {
@@ -47,15 +42,23 @@ export default {
       }
     },
     async checkLoginStatus() {
-      const sessionId = document.cookie = "name=sessionId";
-      if (sessionId) {
+      let sessionId = '';
+      try { //sessionId cookie kiolvasása
+        sessionId = document.cookie.split('; ').find(row => row.startsWith('sessionId=')).split('=')[1];
+      } catch (e) {
+        sessionId = '';
+      }
+            
+      if (sessionId.length > 0) {
         try {
           const response = await axios.get('http://localhost:4000/checkLogin', {
+            headers: {
+              'X-Session-Id': sessionId,
+            },
             withCredentials: true
           });
           if (response.status === 200) {
             console.log('Bejelentkezve mint:', response.data.username);
-            this.isLoggedIn = true;
           }
         } catch (error) {
           console.error(error.response.data);

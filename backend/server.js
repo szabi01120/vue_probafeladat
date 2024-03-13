@@ -18,29 +18,10 @@ expressApp.use(cookieParser());
 expressApp.use('/accounts', accountsRouter);
 expressApp.use(bodyParser.json());
 
-let currentIP = null;
-console.log('currentIP: ' + currentIP);
-
-//ip address check
+//ip check
 expressApp.use((req, res, next) => {
-  const clientIP = req.ip;
-  console.log('clientIP: ' + clientIP);
-  if (!currentIP) {
-    currentIP = clientIP;
-    next();
-  } else {
-    if (currentIP !== clientIP) {
-      //amint megvaltozik az ip toroljuk a sessiont, es a cookie-t
-      const sessionId = req.cookies.sessionId;
-      if (sessions[sessionId]) {
-        delete sessions[sessionId];
-      }
-      res.clearCookie('sessionId');
-      res.status(401).send('Az IP cím megváltozott, ki lettél jelentkeztetve.');
-    } else {
-      next();
-    }
-  }
+  console.log('IP: ' + req.ip);
+  next();
 });
 
 //session adatbázis
@@ -68,19 +49,19 @@ expressApp.post('/login', (req, res) => {
 
     //session id generate
     const sessionId = uuid.v4();
-    sessions[sessionId] = { username };
+    sessions[sessionId] = { username }; 
     console.log('sessions: ' + sessionId);
-    res.cookie('sessionId', sessionId);
-
+    
+    res.set('X-Session-Id', sessionId);
     res.status(200).send({ sessionId });
   });
 });
 
 //checkLogin endpoint
 expressApp.get('/checkLogin', (req, res) => {
-  const sessionId = req.cookies.sessionId;
+  const sessionId = req.cookies.sessionId; //session id lekérése a requestből
   if (sessions[sessionId]) {
-    res.status(200).send({username: sessions[sessionId].username });
+    res.status(200).send({username: sessions[sessionId].username }); //ha be van jelentkezve, visszaküldi a felhasználónevet
   }
   else {
     res.status(401).send('Nem vagy bejelentkezve.');

@@ -32,15 +32,19 @@ router.beforeEach(async (to, from, next) => {
   let isLoggedIn = false;
 
   try { //user logged in check
-    const response = await axios.get('http://localhost:4000/checkLogin', { withCredentials: true }); 
-    isLoggedIn = response.status === 200;
+    if(to.path === '/home') {
+      const response = await axios.get('http://localhost:4000/checkLogin', { withCredentials: true }); 
+      isLoggedIn = response.status === 200;
+      console.log('response status: ' + response.status);
+    } 
   } catch (e) { 
+    console.error(e);
     isLoggedIn = false;
   }
 
   if (to.matched.some(record => record.meta.requiresAuth) && !isLoggedIn) { //ha nincs bejelentkezve, redirect to login
     next({ path: '/'});
-  } else {
+  } else { //ha be van jelentkezve, redirect to home
     if(to.path === '/' && isLoggedIn) {
       next({ path: '/home' });
     } else {

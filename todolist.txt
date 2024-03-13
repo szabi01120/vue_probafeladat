@@ -8,12 +8,21 @@ to do:
 
 -belépésnél generál egy sessionid-t --> 32 karakter hosszú random string DONE
 -ezt tárolja el cookieban, ezzel azonosít ha be vagy lépve --> node objectben runtime tárolás --> nem kell sql-be menteni DONE
+
+---------------------------------------------------------------------
 -ip address check, ha változik az ip cím, dobjon ki
 -2fa check, emailre dob egy 6 karakteres számkódot
+---------------------------------------------------------------------
+
+
 -expressnél middleware-t írni, userLoggedIn néven, ellenőrzi, hogy be van e lépve --> ha igen akkor eltárolja az accountid-t DONE
--cookieból sessionid-t X-Session-Id http headerrel küldd fel
--frontenden axiossal get/post fetchek
+-cookieból sessionid-t X-Session-Id http headerrel küldd fel DONE
+-frontenden axiossal get/post fetchek DONE
+
+
+---------------------------------------------------------------------
 -30 perc egy session --> minden middleware meghívásnál újrakezdi és res.append("X-Session-Timeout", time); válasz headerrel leküldi másodpercben a session idejét --> frontenden tárolás, és számoljunk vissza belőle mint v4 ucp-n.
+---------------------------------------------------------------------
 
 -session tárolás példa:
 userSessions[str] = {
