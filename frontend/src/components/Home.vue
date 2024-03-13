@@ -26,7 +26,6 @@ export default {
                 },
                 withCredentials: true
             }).then((response) => {
-                //document.cookie = 'sessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'; 
                 console.log(response.status, response.data);
                 
                 this.$router.push('/').catch((e) => {console.log(e)});
@@ -35,17 +34,15 @@ export default {
             });
         },
         async getSessionTimeout() {
-            await axios.get('http://localhost:4000/checkLogin', {
+            const response = await axios.get('http://localhost:4000/checkLogin', {
                 headers: {
                     'X-Session-Id': document.cookie.split('; ').find(row => row.startsWith('sessionId=')).split('=')[1],
                 },
                 withCredentials: true
-            }).then((response) => {
-                console.log(response.headers['x-session-timeout']);
-                this.sessionTimeout = response.headers['x-session-timeout'];
-            }).catch((error) => {
-                console.error('Hiba történt a session timeout lekérdezésekor:', error.response.data);
             });
+            console.log(response.headers['X-Session-Timeout']);
+            console.log(response.headers);
+            this.sessionTimeout = response.headers['x-session-timeout'];
         }
     },
     created() {

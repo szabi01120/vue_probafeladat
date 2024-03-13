@@ -8,6 +8,7 @@
     "jsonify": "^0.0.1",
     "mysql": "^2.18.1",
     "mysql2": "^3.9.2",
+    "nodemailer": "^6.9.12",
     "uuid": "^9.0.1"
   },
   "scripts": {
