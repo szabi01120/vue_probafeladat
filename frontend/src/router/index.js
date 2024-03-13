@@ -27,30 +27,26 @@ const router = new VueRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-  // console.log(to.matched.some(record => record.meta.requiresAuth));
-  // console.log(localStorage.getItem('isLoggedIn'));  
   let isLoggedIn = false;
 
   try { //user logged in check
-    if(to.path === '/home') {
-      const response = await axios.get('http://localhost:4000/checkLogin', { withCredentials: true }); 
+    if (to.path === '/home') {
+      const response = await axios.get('http://localhost:4000/checkLogin', { withCredentials: true });
       isLoggedIn = response.status === 200;
-      console.log('response status: ' + response.status);
-    } 
-  } catch (e) { 
+      next();
+    }
+  } catch (e) {
     console.error(e);
     isLoggedIn = false;
   }
 
   if (to.matched.some(record => record.meta.requiresAuth) && !isLoggedIn) { //ha nincs bejelentkezve, redirect to login
-    next({ path: '/'});
-  } else { //ha be van jelentkezve, redirect to home
-    if(to.path === '/' && isLoggedIn) {
-      next({ path: '/home' });
-    } else {
-      next();
-    }
-  } 
+    next({ path: '/' });
+  } else if (to.path === '/' && isLoggedIn) { //ha be van jelentkezve, redirect to home
+    next({ path: '/home' });
+  } else {
+    next();
+  }
 });
 
 export default router;

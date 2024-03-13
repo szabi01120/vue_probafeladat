@@ -33,7 +33,7 @@ export default {
         const response = await axios.post('http://localhost:4000/login', this.loginForm);
         if (response.status === 200) {
           console.log('Bejelentkezés sikeres!');
-          document.cookie = `sessionId=${response.data.sessionId}`;
+          document.cookie = `sessionId=${response.data.sessionId}`; //sessionId cookie létrehozása
           this.$router.push('/home').catch((e) => {console.log(e)});
         }
       } catch (error) {
