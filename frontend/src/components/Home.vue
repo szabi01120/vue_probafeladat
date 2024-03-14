@@ -8,14 +8,13 @@
 
 <script>
 /* eslint-disable */
-import login from '@/components/Login'
 import axios from 'axios';
 
 export default {
     data() {
         return {
             sessionTimeout: 0,
-            formattedTime: '',
+            formattedTime: '30:00',
             remainingTime: 0, //visszaszámlálás
             timer: null
         }
@@ -37,12 +36,6 @@ export default {
             });
         },
         async getSessionTimeout() {
-            const response = await axios.get('http://localhost:4000/checkLogin', {
-                headers: {
-                    'X-Session-Id': document.cookie.split('; ').find(row => row.startsWith('sessionId=')).split('=')[1],
-                },
-                withCredentials: true
-            });            
             this.sessionTimeout = parseInt(document.cookie.split('; ').find(row => row.startsWith('sessionTimeout=')).split('=')[1]);
             this.remainingTime = this.sessionTimeout; //idozito kezdeti ertek
             this.timer = setInterval(this.countdown, 1000); //countdown inditasa
@@ -58,10 +51,36 @@ export default {
                 console.log('Session Timeout!');
                 this.logout();
             }
+        },
+        async checkLoginStatus() {
+            let sessionId = '';
+            try { //sessionId cookie kiolvasása
+                sessionId = document.cookie.split('; ').find(row => row.startsWith('sessionId=')).split('=')[1];
+            } catch (e) { sessionId = ''; }
+                
+            if (sessionId.length > 0) {
+                try {
+                    const response = await axios.get('http://localhost:4000/checkLogin', {
+                    headers: {
+                    'x-session-id': sessionId,
+                    },
+                    withCredentials: true
+                });
+                if (response.status === 200) {
+                    const sessionTimeout = response.headers['x-session-timeout'];
+                    console.log('Session Timeout:', response.headers);
+                    console.log('Bejelentkezve mint:', response.data.username);
+                }
+                } catch (error) {
+                console.error(error.response.data);
+                }
+            } else {
+                this.$router.push('/').catch((e) => {console.log(e)});
+            }
         }
-    },
+    },    
     created() {
-        login.methods.checkLoginStatus();
+        this.checkLoginStatus();
         this.getSessionTimeout();
     },
 }

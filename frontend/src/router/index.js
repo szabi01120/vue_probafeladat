@@ -27,22 +27,28 @@ const router = new VueRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-  let isLoggedIn = false;
+  let sessionId = '';
+  try { //sessionId cookie kiolvasása
+      sessionId = document.cookie.split('; ').find(row => row.startsWith('sessionId=')).split('=')[1];
+  } catch (e) { sessionId = ''; }
 
   try { //user logged in check
     if (to.path === '/home') {
-      const response = await axios.get('http://localhost:4000/checkLogin', { withCredentials: true });
-      isLoggedIn = response.status === 200;
+      const response = await axios.get('http://localhost:4000/checkLogin', {
+          headers: {
+          'x-session-id': sessionId,
+          },
+          withCredentials: true
+      });
       next();
     }
   } catch (e) {
     console.error(e);
-    isLoggedIn = false;
   }
 
-  if (to.matched.some(record => record.meta.requiresAuth) && !isLoggedIn) { //ha nincs bejelentkezve, redirect to login
+  if (to.matched.some(record => record.meta.requiresAuth) && sessionId.length === 0) { //ha nincs bejelentkezve, redirect to login
     next({ path: '/' });
-  } else if (to.path === '/' && isLoggedIn) { //ha be van jelentkezve, redirect to home
+  } else if (to.path === '/' && sessionId.length > 0) { //ha be van jelentkezve, redirect to home
     next({ path: '/home' });
   } else {
     next();

@@ -11,7 +11,7 @@ to do:
 
 ---------------------------------------------------------------------
 -ip address check, ha változik az ip cím, dobjon ki
--2fa check, emailre dob egy 6 karakteres számkódot HALF DONE
+-2fa check, emailre dob egy 6 karakteres számkódot DONE
 ---------------------------------------------------------------------
 
 
@@ -36,6 +36,14 @@ userSessions[str] = {
 
 e6b93454ad816b54f044836f582d6da436c0868115ec55f898f148cb72da3b87
 793c7bc34174eb688536340431a3516e22b23867b8f291069126453c25e0d2a5
+
+
+amit javitani kell:
+
+x-session-timeout header frontend -off
+nodemailer emailt nem kuldi el DONE
+ip ellenorzes
+
 
 
 
