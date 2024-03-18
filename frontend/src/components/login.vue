@@ -37,13 +37,14 @@ export default {
   methods: {
     async login() {
       try {
-        const response = await axios.post('http://localhost:4000/login', this.loginForm);
+        const response = await axios.post('http://192.168.0.133:4000/login', this.loginForm);
         if (response.status === 200) {    
           console.log('Bejelentkezés sikeres!');
           // console.log('Két faktoros azonosítás szükséges:', response.data);
           if (response.data.showTwoFactor) { //backend dönti el, hogy kell e 2fa vagy sem, ha nem, akkor továbbenged
             this.showTwoFactor = true;          
             this.accountId = response.data.accountId;
+            this.loginError = '';
           } else {
             document.cookie = `sessionId=${response.data.sessionId}`; //sessionId cookie létrehozása
             this.$router.push('/home').catch((e) => {console.log(e)});
@@ -56,7 +57,7 @@ export default {
     },
     async verifyTwoFactor() {
       try {
-        const response = await axios.post('http://localhost:4000/verify', {
+        const response = await axios.post('http://192.168.0.133:4000/verify', {
           accountId: this.accountId,
           username: this.loginForm.username,
           verificationCode: this.verificationCode

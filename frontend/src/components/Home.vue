@@ -22,9 +22,14 @@ export default {
     name: 'Home',
     methods: {
         async logout() {
-            await axios.post('http://localhost:4000/logout', {}, {
+            let sessionId = '';
+            try { //sessionId cookie kiolvasása
+                sessionId = document.cookie.split('; ').find(row => row.startsWith('sessionId=')).split('=')[1];
+            } catch (e) { sessionId = ''; }
+
+            await axios.post('http://192.168.0.133:4000/logout', {}, {
                 headers: {
-                    'X-Session-Id': document.cookie.split('; ').find(row => row.startsWith('sessionId=')).split('=')[1], //sessionId felküldése
+                    'X-Session-Id': sessionId //sessionId felküldése
                 },
                 withCredentials: true
             }).then((response) => {
@@ -60,15 +65,15 @@ export default {
                 
             if (sessionId.length > 0) {
                 try {
-                    const response = await axios.get('http://localhost:4000/checkLogin', {
+                    const response = await axios.get('http://192.168.0.133:4000/checkLogin', {
                     headers: {
                     'x-session-id': sessionId,
                     },
                     withCredentials: true
                 });
                 if (response.status === 200) {
-                    const sessionTimeout = response.headers['x-session-timeout'];
-                    console.log('Session Timeout:', response.headers);
+                    //const sessionTimeout = response.headers['x-session-timeout'];
+                    console.log('resp data:', response.data);
                     console.log('Bejelentkezve mint:', response.data.username);
                 }
                 } catch (error) {

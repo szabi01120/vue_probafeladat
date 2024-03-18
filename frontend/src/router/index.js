@@ -34,7 +34,7 @@ router.beforeEach(async (to, from, next) => {
 
   try { //user logged in check
     if (to.path === '/home') {
-      const response = await axios.get('http://localhost:4000/checkLogin', {
+      const response = await axios.get('http://192.168.0.133:4000/checkLogin', {
           headers: {
           'x-session-id': sessionId,
           },
