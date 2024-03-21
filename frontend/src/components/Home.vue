@@ -2,6 +2,9 @@
     <div class="home">
         <h1>Kezdőoldal</h1>
         <p>Session Timeout: {{ formattedTime }}</p>
+        <p>Bejelentkezve mint: {{ username }} </p>
+        <p> Account ID: {{ accountId }}</p>
+        <p>IP cím: {{ clientIp }}</p>
         <button @click="logout">Kijelentkezés</button>
     </div>
 </template>
@@ -15,9 +18,11 @@ export default {
         return {
             sessionTimeout: 0,
             formattedTime: '30:00',
-            remainingTime: 0, //visszaszámlálás
             timer: null,
-            sessionId: ''
+            sessionId: '',
+            username: '',
+            accountId: '',
+            clientIp: '',
         }
     },
     name: 'Home',
@@ -29,22 +34,22 @@ export default {
                 },
                 withCredentials: true
             }).then((response) => {
-                console.log(response.status, response.data);                
+                console.log(response.status, response.data);   
+                localStorage.setItem('sessionTimeout', 0);
                 this.$router.push('/').catch((e) => { console.log(e) });
             }).catch((error) => {
                 console.error('Hiba történt a kijelentkezés során:', error.response.data);
             });
         },
         async getSessionTimeout() {
-            this.sessionTimeout = parseInt(document.cookie.split('; ').find(row => row.startsWith('sessionTimeout=')).split('=')[1]);
-            this.remainingTime = this.sessionTimeout; //idozito kezdeti ertek
+            this.sessionTimeout = parseInt(localStorage.getItem('sessionTimeout'));
             this.timer = setInterval(this.countdown, 1000); //countdown inditasa
         },
         countdown() {
-            if(this.remainingTime > 0) {
-                this.remainingTime--;
-                const perc = Math.floor(this.remainingTime / 60);
-                const masodperc = this.remainingTime % 60;
+            if(this.sessionTimeout > 0) {
+                this.sessionTimeout--;
+                const perc = Math.floor(this.sessionTimeout / 60);
+                const masodperc = this.sessionTimeout % 60;
                 this.formattedTime = `${perc}:${masodperc < 10 ? '0' : ''}${masodperc}`;
             } else {
                 clearInterval(this.timer); //idozito leallitasa
@@ -68,7 +73,9 @@ export default {
                     if (response.status === 200) {
                         console.log('resp data:', response.data);
                         console.log('Bejelentkezve mint:', response.data.username);
-                        console.log('Session Timeout:', response.headers['x-session-timeout']);
+                        this.username = response.data.username;
+                        this.accountId = response.data.account;
+                        this.clientIp = response.data.ip;
                     } else {
                         this.logout();
                         console.log(res.status, res.data, 'Kijelentkeztél!');
@@ -78,13 +85,14 @@ export default {
                 }
             } else {
                 console.log('Nincs bejelentkezve!');
-                this.$router.push('/').catch((e) => { console.log(e) });
+                localStorage.setItem('sessionTimeout', 0);
+                return this.$router.push('/').catch((e) => { console.log(e) });
             }
         }
     },    
     created() {
         this.checkLoginStatus();
-        if(this.sessionTimeout === 0) this.getSessionTimeout();
+        if(this.sessionId) this.getSessionTimeout();
     },
 }
 </script>

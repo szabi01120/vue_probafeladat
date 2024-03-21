@@ -27,16 +27,15 @@ const sessions = {};
 //checkLogin middleware
 function userLoggedIn(req, res, next) {
   const sessionId = req.get('x-session-id'); //session id lekérése a requestből
-  console.log('sessionId in userloggedin: ' , sessionId);
   if (sessions[sessionId]) {
     res.locals.accountId = sessions[sessionId].account; //accountId tárolása a response-ban
     res.locals.username = sessions[sessionId].username; //username tárolása a response-ban
     res.locals.ip = sessions[sessionId].ip; //ip tárolása a response-ban
     console.log('userIp: ' , res.locals.ip);
+    console.log('userAccountId: ' , sessions[sessionId].account);
     next();
   } else {
     res.clearCookie('sessionId');
-    res.clearCookie('sessionTimeout');
     res.status(401).send('Nem vagy bejelentkezve.');
   }
 }
@@ -47,8 +46,6 @@ function userLogout(req, res) {
     const sessionId = req.get('x-session-id');
     delete sessions[sessionId]; //session törlése
     res.clearCookie('sessionId');
-    res.clearCookie('sessionTimeout');
-    console.log('sikeres kijelentkezes');
     res.status(200).send('Sikeres kijelentkezés.');
   } catch (error) {
     res.status(500).send('Sikertelen kijelentkezés.');
@@ -64,6 +61,7 @@ function checkIpChange(req, res) {
 
   if (sessions[sessionId] && sessions[sessionId].ip !== currentIp) {
     userLogout(req, res);
+    return 0;
   }
 };
 
@@ -125,15 +123,17 @@ expressApp.post('/verify', (req, res) => {
     user2FA: verificationCode,
   };  //session tárolás
   
-  res.set('X-Session-Timeout', sessionTimeout); //session timeout header
+  res.append('X-Session-Timeout', sessionTimeout); //session timeout header
 
   res.status(200).send({ sessionId, sessionTimeout }); //helyes 2fa eseten login
 });
 
 //checkLogin endpoint
 expressApp.get('/checkLogin', userLoggedIn, (req, res) => {// csak akkor fut le és adja vissza a username-t, ha a middleware-ben //
+  if(checkIpChange(req, res) === 0) return;
+
   checkIpChange(req, res);
-  res.status(200).send({ username: res.locals.username});  // lefut a next(), vagyis be van jelentkezve //
+  res.status(200).send({ username: res.locals.username, account: res.locals.accountId, ip: res.locals.ip});  // lefut a next(), vagyis be van jelentkezve //
 });
 
 //logout endpoint

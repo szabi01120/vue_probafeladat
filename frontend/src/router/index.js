@@ -30,9 +30,7 @@ router.beforeEach(async (to, from, next) => {
   let sessionId = '';
   try {
     sessionId = document.cookie.split('; ').find(row => row.startsWith('sessionId')).split('=')[1];
-  } catch (e) {
-    sessionId = '';
-  }
+  } catch (e) { sessionId = ''; }
 
   try { //user logged in check
     if (to.path === '/home') {

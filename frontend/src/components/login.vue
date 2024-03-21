@@ -1,5 +1,6 @@
 <template>
   <div class="login-system">
+    <div v-if="loggedOut" class="logged-out">Sikeresen kijelentkeztél!</div>
     <h2>Bejelentkezés</h2>
     <form @submit.prevent="showTwoFactor ? verifyTwoFactor() : login()">
       <label for="username">Felhasználónév:</label>
@@ -31,7 +32,8 @@ export default {
       loginError: '',
       showTwoFactor: false,
       accountId: '',
-      sessionTimeout : 0
+      sessionTimeout : 0,
+      loggedOut: false
     };
   },
   
@@ -59,8 +61,8 @@ export default {
         });
         if (response.status === 200) {    
           console.log('Két faktoros azonosítás sikeres!');
-          console.log(response.headers['x-session-timeout']);
-          document.cookie = `sessionTimeout=${response.data.sessionTimeout}`; //sessiontimeout cookie 
+          //console.log(response.headers['x-session-timeout']); //sessiontimeout header
+          localStorage.setItem('sessionTimeout', response.data.sessionTimeout); //sessiontimeout localstorage
           document.cookie = `sessionId=${response.data.sessionId}`; //sessionId cookie
           this.$router.push('/home').catch((e) => {console.log(e)});
         }
@@ -70,6 +72,11 @@ export default {
       }
     },    
   },
+  mounted() {
+    if(localStorage.getItem('sessionTimeout') === '0') {
+      this.loggedOut = true;      
+    }
+  }
 };
 </script>
 
