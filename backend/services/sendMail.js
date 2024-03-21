@@ -6,6 +6,9 @@ function sendCodeToEmail(email, code) {
         auth: {
             user: 'testvue123456@gmail.com',
             pass: 'dwov ivac vxmn upig'
+        },
+        tls: {
+            rejectUnauthorized: false //ideiglenes
         }
     });
 

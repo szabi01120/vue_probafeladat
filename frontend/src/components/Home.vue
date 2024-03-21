@@ -16,26 +16,21 @@ export default {
             sessionTimeout: 0,
             formattedTime: '30:00',
             remainingTime: 0, //visszaszámlálás
-            timer: null
+            timer: null,
+            sessionId: ''
         }
     },
     name: 'Home',
     methods: {
         async logout() {
-            let sessionId = '';
-            try { //sessionId cookie kiolvasása
-                sessionId = document.cookie.split('; ').find(row => row.startsWith('sessionId=')).split('=')[1];
-            } catch (e) { sessionId = ''; }
-
             await axios.post('http://192.168.0.133:4000/logout', {}, {
                 headers: {
-                    'X-Session-Id': sessionId //sessionId felküldése
+                    'X-Session-Id': this.sessionId //sessionId felküldése
                 },
                 withCredentials: true
             }).then((response) => {
-                console.log(response.status, response.data);
-                
-                this.$router.push('/').catch((e) => {console.log(e)});
+                console.log(response.status, response.data);                
+                this.$router.push('/').catch((e) => { console.log(e) });
             }).catch((error) => {
                 console.error('Hiba történt a kijelentkezés során:', error.response.data);
             });
@@ -58,35 +53,38 @@ export default {
             }
         },
         async checkLoginStatus() {
-            let sessionId = '';
             try { //sessionId cookie kiolvasása
-                sessionId = document.cookie.split('; ').find(row => row.startsWith('sessionId=')).split('=')[1];
-            } catch (e) { sessionId = ''; }
+                this.sessionId = document.cookie.split('; ').find(row => row.startsWith('sessionId=')).split('=')[1];
+            } catch (e) { this.sessionId = ''; }
                 
-            if (sessionId.length > 0) {
+            if (this.sessionId) {
                 try {
                     const response = await axios.get('http://192.168.0.133:4000/checkLogin', {
-                    headers: {
-                    'x-session-id': sessionId,
-                    },
-                    withCredentials: true
-                });
-                if (response.status === 200) {
-                    //const sessionTimeout = response.headers['x-session-timeout'];
-                    console.log('resp data:', response.data);
-                    console.log('Bejelentkezve mint:', response.data.username);
-                }
+                        headers: {
+                        'x-session-id': this.sessionId,
+                        },
+                        withCredentials: true
+                    });
+                    if (response.status === 200) {
+                        console.log('resp data:', response.data);
+                        console.log('Bejelentkezve mint:', response.data.username);
+                        console.log('Session Timeout:', response.headers['x-session-timeout']);
+                    } else {
+                        this.logout();
+                        console.log(res.status, res.data, 'Kijelentkeztél!');
+                    }
                 } catch (error) {
-                console.error(error.response.data);
+                    console.error(error.response.data);
                 }
             } else {
-                this.$router.push('/').catch((e) => {console.log(e)});
+                console.log('Nincs bejelentkezve!');
+                this.$router.push('/').catch((e) => { console.log(e) });
             }
         }
     },    
     created() {
         this.checkLoginStatus();
-        this.getSessionTimeout();
+        if(this.sessionTimeout === 0) this.getSessionTimeout();
     },
 }
 </script>

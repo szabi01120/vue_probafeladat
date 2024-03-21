@@ -30,7 +30,8 @@ export default {
       verificationCode: '',
       loginError: '',
       showTwoFactor: false,
-      accountId: ''
+      accountId: '',
+      sessionTimeout : 0
     };
   },
   
@@ -40,15 +41,9 @@ export default {
         const response = await axios.post('http://192.168.0.133:4000/login', this.loginForm);
         if (response.status === 200) {    
           console.log('Bejelentkezés sikeres!');
-          // console.log('Két faktoros azonosítás szükséges:', response.data);
-          if (response.data.showTwoFactor) { //backend dönti el, hogy kell e 2fa vagy sem, ha nem, akkor továbbenged
-            this.showTwoFactor = true;          
-            this.accountId = response.data.accountId;
-            this.loginError = '';
-          } else {
-            document.cookie = `sessionId=${response.data.sessionId}`; //sessionId cookie létrehozása
-            this.$router.push('/home').catch((e) => {console.log(e)});
-          }
+          this.showTwoFactor = true;          
+          this.accountId = response.data.accountId;
+          this.loginError = ''; //meglévő hibaüzenet törlése a 2fa megjelenítésekor
         }
       } catch (error) {
         console.error('Hiba történt a bejelentkezés során:', error.response.data);
@@ -64,16 +59,16 @@ export default {
         });
         if (response.status === 200) {    
           console.log('Két faktoros azonosítás sikeres!');
-          document.cookie = `sessionId=${response.data.sessionId}`; //sessionId cookie frissítése
-
+          console.log(response.headers['x-session-timeout']);
+          document.cookie = `sessionTimeout=${response.data.sessionTimeout}`; //sessiontimeout cookie 
+          document.cookie = `sessionId=${response.data.sessionId}`; //sessionId cookie
           this.$router.push('/home').catch((e) => {console.log(e)});
         }
       } catch (error) {
         console.error('Hiba történt a két faktoros azonosítás során:', error.response.data);
         this.loginError = error.response.data;
       }
-    },
-    
+    },    
   },
 };
 </script>
